@@ -1,6 +1,9 @@
 const express = require('express')
 const app = express()
 const Joi = require('joi')
+const authMiddleware = require('./middleware/auth')
+const morgan = require('morgan')
+const helmet = require('helmet')
 
 const lessons = [
     { name: 'Node js', id: 1 },
@@ -10,6 +13,16 @@ const lessons = [
 
 // Middleware functions
 app.use(express.json())
+
+// Module middleware
+app.use(morgan('tiny'))
+app.use(helmet())
+
+// custom middleware
+app.use((req, res, next) => {
+    console.log('Logger');
+    next()
+})
 
 // Get home page
 app.get('/', (req, res) => {
@@ -41,7 +54,7 @@ app.get('/api/lessons/:id', (req, res) => {
 })
 
 // // Delete single lesson with id
-app.delete('/api/lessons/delete/:id', (req, res) => {
+app.delete('/api/lessons/delete/:id', authMiddleware, (req, res) => {
     // console.log(req.params.id);
     const idx = lessons.findIndex(les => les.id === +req.params.id)
 
@@ -55,7 +68,7 @@ app.delete('/api/lessons/delete/:id', (req, res) => {
 })
 
 // Post add lesson
-app.post('/api/lessons/add', (req, res) => {
+app.post('/api/lessons/add', authMiddleware, (req, res) => {
     // console.log(req.body); // object
     // if (!req.body.name) {
     //     res.send('Ism kiritilishi kerak')
@@ -95,7 +108,7 @@ app.post('/api/lessons/add', (req, res) => {
 })
 
 // Put lesson with id
-app.put('/api/lessons/update/:id', (req, res) => {
+app.put('/api/lessons/update/:id', authMiddleware, (req, res) => {
     const idx = lessons.findIndex(les => les.id === +req.params.id)
 
     // Validator
