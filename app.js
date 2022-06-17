@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+const Joi = require('joi')
 
 const lessons = [
     { name: 'Node js', id: 1 },
@@ -26,6 +27,8 @@ app.get('/api/lessons/lesson', (req, res) => {
     const lesson = lessons.find(les => les.name === req.query.name)
     res.status(200).send(lesson)
 })
+
+// process // 
 
 // Get single lesson with id
 app.get('/api/lessons/:id', (req, res) => {
@@ -54,9 +57,37 @@ app.delete('/api/lessons/delete/:id', (req, res) => {
 // Post add lesson
 app.post('/api/lessons/add', (req, res) => {
     // console.log(req.body); // object
+    // if (!req.body.name) {
+    //     res.send('Ism kiritilishi kerak')
+    //     return
+    // }
+
+    // if (req.body.year <= 1980 || req.body.year >= 2022) {
+    //     res.status(404).send('Yil xato kiritildi')
+    //     return
+    // }
+
+    // if (req.body.name.length < 3) {
+    //     res.status(404).send('Ism kamida uzunligi 3 bo`lishi kerak')
+    //     return
+    // }
+
+    const schema = Joi.object({
+        name: Joi.string().
+            min(3).
+            required()
+    })
+
+    const value = schema.validate(req.body)
+
+    if (value.error) {
+        res.status(404).send(value.error.message)
+        return
+    }
+
     const lesson = {
         name: req.body.name,
-        id: lessons.length + 1
+        id: lessons.length + 1 // 
     }
 
     lessons.push(lesson)
@@ -82,7 +113,21 @@ app.put('/api/lessons/update/:id', (req, res) => {
     res.status(200).send('Lesson updated successfull')
 })
 
-const port = 3000
+const port = normalizePort(process.env.port || 3000) // Number \\
+
 app.listen(port, () => {
     console.log('App listening on port ' + port);
 })
+
+function normalizePort(val) { // number // string // false
+    const num = parseInt(val)
+    if (isNaN(num)) {
+        return val
+    }
+
+    if (num) {
+        return num
+    }
+
+    return false
+}
