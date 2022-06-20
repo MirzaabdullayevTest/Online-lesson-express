@@ -4,6 +4,11 @@ const Joi = require('joi')
 const authMiddleware = require('./middleware/auth')
 const morgan = require('morgan')
 const helmet = require('helmet')
+const path = require('path')
+
+// Require routes
+const homeRouter = require('./routes/home')
+const lessonRouter = require('./routes/lesson')
 
 // Dotenv
 require('dotenv').config()
@@ -17,40 +22,21 @@ const lessons = [
 // Middleware functions
 app.use(express.json())
 
-// console.log(app.get('env')); // by default 'development'
-console.log(process.env.NODE_ENV);
+// Express static middleware
+app.use(express.static(path.join(__dirname, 'public')))
 
 // Urlencoded middleware
 app.use(express.urlencoded({ extended: true }))
 
 // Module middleware
-if(process.env.NODE_ENV === 'development'){
+if (process.env.NODE_ENV === 'development') {
     app.use(morgan('tiny'))
 }
 app.use(helmet())
 
-// custom middleware
-app.use((req, res, next) => {
-    console.log('Logger');
-    next()
-})
-
-// Get home page
-app.get('/', (req, res) => {
-    res.send('<h1> Here is home page </h1>')
-})
-
-// Get all lessons
-app.get('/api/lessons', (req, res) => {
-    res.status(200).send(lessons)
-})
-
-// Get single lesson with name
-app.get('/api/lessons/lesson', (req, res) => {
-    // console.log(req.query);
-    const lesson = lessons.find(les => les.name === req.query.name)
-    res.status(200).send(lesson)
-})
+// Routing
+app.use('/', homeRouter)
+app.use('/api/lessons/', lessonRouter)
 
 // Get single lesson with id
 app.get('/api/lessons/:id', (req, res) => {
