@@ -5,6 +5,9 @@ const authMiddleware = require('./middleware/auth')
 const morgan = require('morgan')
 const helmet = require('helmet')
 
+// Dotenv
+require('dotenv').config()
+
 const lessons = [
     { name: 'Node js', id: 1 },
     { name: 'React js', id: 2 },
@@ -14,8 +17,16 @@ const lessons = [
 // Middleware functions
 app.use(express.json())
 
+// console.log(app.get('env')); // by default 'development'
+console.log(process.env.NODE_ENV);
+
+// Urlencoded middleware
+app.use(express.urlencoded({ extended: true }))
+
 // Module middleware
-app.use(morgan('tiny'))
+if(process.env.NODE_ENV === 'development'){
+    app.use(morgan('tiny'))
+}
 app.use(helmet())
 
 // custom middleware
@@ -40,8 +51,6 @@ app.get('/api/lessons/lesson', (req, res) => {
     const lesson = lessons.find(les => les.name === req.query.name)
     res.status(200).send(lesson)
 })
-
-// process // 
 
 // Get single lesson with id
 app.get('/api/lessons/:id', (req, res) => {
@@ -69,26 +78,10 @@ app.delete('/api/lessons/delete/:id', authMiddleware, (req, res) => {
 
 // Post add lesson
 app.post('/api/lessons/add', authMiddleware, (req, res) => {
-    // console.log(req.body); // object
-    // if (!req.body.name) {
-    //     res.send('Ism kiritilishi kerak')
-    //     return
-    // }
-
-    // if (req.body.year <= 1980 || req.body.year >= 2022) {
-    //     res.status(404).send('Yil xato kiritildi')
-    //     return
-    // }
-
-    // if (req.body.name.length < 3) {
-    //     res.status(404).send('Ism kamida uzunligi 3 bo`lishi kerak')
-    //     return
-    // }
-
     const schema = Joi.object({
         name: Joi.string().
             min(3).
-            required()
+            required(),
     })
 
     const value = schema.validate(req.body)
@@ -126,7 +119,7 @@ app.put('/api/lessons/update/:id', authMiddleware, (req, res) => {
     res.status(200).send('Lesson updated successfull')
 })
 
-const port = normalizePort(process.env.port || 3000) // Number \\
+const port = normalizePort(process.env.port || 3000) // Number
 
 app.listen(port, () => {
     console.log('App listening on port ' + port);
