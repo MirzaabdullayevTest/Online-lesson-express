@@ -5,10 +5,14 @@ const authMiddleware = require('./middleware/auth')
 const morgan = require('morgan')
 const helmet = require('helmet')
 const path = require('path')
+const pug = require('pug')
 
 // Require routes
 const homeRouter = require('./routes/home')
 const lessonRouter = require('./routes/lesson')
+
+// Pug connection
+app.set('view engine', 'pug')
 
 // Dotenv
 require('dotenv').config()
@@ -48,7 +52,7 @@ app.get('/api/lessons/:id', (req, res) => {
     res.status(200).send(lesson)
 })
 
-// // Delete single lesson with id
+// Delete single lesson with id
 app.delete('/api/lessons/delete/:id', authMiddleware, (req, res) => {
     // console.log(req.params.id);
     const idx = lessons.findIndex(les => les.id === +req.params.id)
