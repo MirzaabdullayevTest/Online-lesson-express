@@ -3,14 +3,16 @@ const router = express.Router()
 const Joi = require('joi')
 const authMiddleware = require('../middleware/auth')
 const { v4: uuid } = require('uuid')
-
-const lessons = []
+const Lesson = require('../model/lesson')
 
 // Get all lessons
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
+    const lessons = await Lesson.getAll()
+
     res.render('lessons', {
         title: 'All lessons',
-        lessons
+        lessons,
+        areLessons: true
     })
 })
 
@@ -55,7 +57,8 @@ router.get('/delete/:id', authMiddleware, (req, res) => {
 })
 
 // Post add lesson
-router.post('/add', authMiddleware, (req, res) => {
+router.post('/add', authMiddleware, async (req, res) => {
+
     const schema = Joi.object({
         name: Joi.string().
             min(3).
@@ -84,8 +87,7 @@ router.post('/add', authMiddleware, (req, res) => {
         author: req.body.author,
         price: req.body.price
     }
-
-    lessons.push(lesson)
+    await Lesson.save(lesson)
     res.redirect('/api/lessons')
 })
 
@@ -106,6 +108,31 @@ router.put('/update/:id', authMiddleware, (req, res) => {
     lessons[idx] = lesson
 
     res.status(200).send('Lesson updated successfull')
+})
+
+router.get('/update/:id', authMiddleware, (req, res) => {
+    const lesson = lessons.find(course => course.id === req.params.id) // {}
+    res.render('updateLesson', {
+        lesson,
+        title: lesson.name
+    })
+})
+
+router.post('/update/:id', authMiddleware, (req, res) => {
+    const idx = lessons.findIndex(les => les.id === req.params.id)
+
+    // Validator
+    if (idx === -1) {
+        return res.status(404).send('404 not found. Id is not exist')
+    }
+
+    let lesson = req.body
+
+    lesson.id = req.params.id
+
+    lessons[idx] = lesson
+
+    res.redirect('/api/lessons')
 })
 
 module.exports = router

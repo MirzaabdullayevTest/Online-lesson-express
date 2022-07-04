@@ -3,13 +3,20 @@ const app = express()
 const morgan = require('morgan')
 // const helmet = require('helmet')
 const path = require('path')
+const { create } = require('express-handlebars')
 
 // Require routes
 const homeRouter = require('./routes/home')
 const lessonRouter = require('./routes/lesson')
 
+const hbs = create({
+    extname: 'hbs',
+    defaultLayout: 'main.hbs',
+})
+
 // Pug connection
-app.set('view engine', 'pug')
+app.engine('hbs', hbs.engine)
+app.set('view engine', 'hbs')
 
 // Dotenv
 require('dotenv').config()
