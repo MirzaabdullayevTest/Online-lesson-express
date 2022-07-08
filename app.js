@@ -14,7 +14,7 @@ const hbs = create({
     defaultLayout: 'main.hbs',
 })
 
-// Pug connection
+// HBS connection
 app.engine('hbs', hbs.engine)
 app.set('view engine', 'hbs')
 

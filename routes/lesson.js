@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const Joi = require('joi')
 const authMiddleware = require('../middleware/auth')
-const { v4: uuid } = require('uuid')
+
 const Lesson = require('../model/lesson')
 
 // Get all lessons
@@ -31,12 +31,11 @@ router.get('/lesson', (req, res) => {
 })
 
 // Get single lesson with id
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
     // console.log(req.params); // bitta object
-    const lesson = lessons.find(les => les.id === req.params.id)
-    if (!lesson) {
-        return res.status(404).send('404 not found')
-    }
+    const id = req.params.id
+    const lesson = await Lesson.findById(id)
+
     res.render("lesson", {
         title: lesson.name,
         lesson
@@ -44,15 +43,8 @@ router.get('/:id', (req, res) => {
 })
 
 // Delete single lesson with id
-router.get('/delete/:id', authMiddleware, (req, res) => {
-    const idx = lessons.findIndex(les => les.id === req.params.id)
-
-    // Validator
-    if (idx === -1) {
-        return res.status(404).send('404 not found. Id is not exist')
-    }
-
-    lessons.splice(idx, 1)
+router.get('/delete/:id', authMiddleware, async (req, res) => {
+    await Lesson.removeById(req.params.id)
     res.redirect('/api/lessons')
 })
 
@@ -79,60 +71,32 @@ router.post('/add', authMiddleware, async (req, res) => {
         return
     }
 
-    const lesson = {
-        name: req.body.name,
-        id: uuid(),
-        img: req.body.img,
-        year: req.body.year || new Date(),
-        author: req.body.author,
-        price: req.body.price
-    }
-    await Lesson.save(lesson)
+    const lesson = new Lesson(
+        req.body.name,
+        req.body.img,
+        req.body.year || new Date(),
+        req.body.author,
+        req.body.price
+    )
+
+    await lesson.save()
+
     res.redirect('/api/lessons')
 })
 
-// Put lesson with id
-router.put('/update/:id', authMiddleware, (req, res) => {
-    const idx = lessons.findIndex(les => les.id === +req.params.id)
-
-    // Validator
-    if (idx === -1) {
-        return res.status(404).send('404 not found. Id is not exist')
-    }
-
-    let lesson = {
-        name: req.body.name,
-        id: req.params.id
-    }
-
-    lessons[idx] = lesson
-
-    res.status(200).send('Lesson updated successfull')
+// Update lesson with id
+router.post('/update/', authMiddleware, async (req, res) => {
+    const id = req.body.id
+    await Lesson.findByIdAndUpdate(id, req.body)
+    res.redirect('/api/lessons')
 })
 
-router.get('/update/:id', authMiddleware, (req, res) => {
-    const lesson = lessons.find(course => course.id === req.params.id) // {}
+router.get('/update/:id', authMiddleware, async (req, res) => {
+    const lesson = await Lesson.findById(req.params.id)
     res.render('updateLesson', {
         lesson,
         title: lesson.name
     })
-})
-
-router.post('/update/:id', authMiddleware, (req, res) => {
-    const idx = lessons.findIndex(les => les.id === req.params.id)
-
-    // Validator
-    if (idx === -1) {
-        return res.status(404).send('404 not found. Id is not exist')
-    }
-
-    let lesson = req.body
-
-    lesson.id = req.params.id
-
-    lessons[idx] = lesson
-
-    res.redirect('/api/lessons')
 })
 
 module.exports = router

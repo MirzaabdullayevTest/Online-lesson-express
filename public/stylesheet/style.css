@@ -30,3 +30,16 @@ body {
     font-weight: 700;
     font-size: 30px;
 }
+
+.card {
+    max-width: 400px;
+    margin: 100px auto;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    color: red;
+}
+
+.card-image {
+    width: 300px;
+}
