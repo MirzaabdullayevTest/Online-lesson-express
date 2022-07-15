@@ -39,6 +39,37 @@ class Card {
             })
         })
     }
+
+    static async removeById(id) {
+        const card = await Card.fetch() // object
+        const idx = card.items.findIndex((item) => item.id === id)
+
+        try {
+            if (idx < 0) {
+                throw new Error('Id not found')
+            }
+
+            card.price = card.price - card.items[idx].price
+
+            if (card.items[idx].count === 1) {
+                // demak kurs korzinada 1 ta // demak kursni to'liq o'chiramiz
+                const newItems = card.items.filter(item => item.id !== id)
+                card.items = newItems
+            } else {
+                // demak kurs korzinada 1 tadan ko'p // faqat countdan 1 ayiramiz
+                card.items[idx].count--
+            }
+
+            return new Promise((res, rej) => {
+                fs.writeFile(dir, JSON.stringify(card), (err) => {
+                    if (err) rej(err)
+                    else res(card)
+                })
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    }
 }
 
 module.exports = Card

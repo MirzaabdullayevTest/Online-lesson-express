@@ -24,4 +24,14 @@ router.post('/add', async (req, res) => {
     res.redirect('/card')
 })
 
+router.delete('/remove/:id', async (req, res) => {
+    const card = await Card.removeById(req.params.id)
+    if (!card) {
+        // demak qanaqadur oshibka bor
+        return res.send('Error')
+    }
+
+    res.status(200).send(card)
+})
+
 module.exports = router
