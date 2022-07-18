@@ -4,6 +4,7 @@ const morgan = require('morgan')
 // const helmet = require('helmet')
 const path = require('path')
 const { create } = require('express-handlebars')
+const mongoose = require('mongoose')
 
 // Require routes
 const homeRouter = require('./routes/home')
@@ -13,6 +14,10 @@ const cardRouter = require('./routes/card')
 const hbs = create({
     extname: 'hbs',
     defaultLayout: 'main.hbs',
+    runtimeOptions: {
+        allowProtoMethodsByDefault: true,
+        allowProtoPropertiesByDefault: true
+    }
 })
 
 // HBS connection
@@ -43,12 +48,21 @@ app.use('/', homeRouter)
 app.use('/lessons/', lessonRouter)
 app.use('/card/', cardRouter)
 
+async function db() {
+    try {
+        await mongoose.connect('mongodb+srv://shohrux:2qgLSOze8Q4kGtDM@cluster0.iczbdik.mongodb.net/online-edu', () => {
+            console.log('MongoDB connected');
+        })
+    } catch (error) {
+        console.error(error);
+    }
+}
 
+db()
 
 const port = normalizePort(process.env.port || 3000) // Number
-
 app.listen(port, () => {
-    console.log('App listening on port ' + port);
+    console.log('Server working on port ' + port);
 })
 
 function normalizePort(val) { // number // string // false

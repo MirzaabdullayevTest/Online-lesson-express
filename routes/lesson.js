@@ -7,8 +7,7 @@ const Lesson = require('../model/lesson')
 
 // Get all lessons
 router.get('/', async (req, res) => {
-    const lessons = await Lesson.getAll()
-
+    const lessons = await Lesson.find({ price: { $gte: 350 } }) // []
 
     res.render('lessons', {
         title: 'All lessons',
@@ -72,13 +71,13 @@ router.post('/add', authMiddleware, async (req, res) => {
         return
     }
 
-    const lesson = new Lesson(
-        req.body.name,
-        req.body.img,
-        req.body.year || new Date(),
-        req.body.author,
-        req.body.price
-    )
+    const lesson = new Lesson({
+        name: req.body.name,
+        price: req.body.price,
+        author: req.body.author,
+        year: req.body.year,
+        img: req.body.img,
+    })
 
     await lesson.save()
 
