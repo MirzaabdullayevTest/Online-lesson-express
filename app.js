@@ -9,6 +9,7 @@ const mongoose = require('mongoose')
 // Require routes
 const homeRouter = require('./routes/home')
 const lessonRouter = require('./routes/lesson')
+const userRouter = require('./routes/user')
 const cardRouter = require('./routes/card')
 
 const hbs = create({
@@ -46,6 +47,7 @@ if (process.env.NODE_ENV === 'development') {
 // Routing
 app.use('/', homeRouter)
 app.use('/lessons/', lessonRouter)
+app.use('/user/', userRouter)
 app.use('/card/', cardRouter)
 
 async function db() {

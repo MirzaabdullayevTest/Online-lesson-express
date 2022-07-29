@@ -7,7 +7,7 @@ const Lesson = require('../model/lesson')
 
 // Get all lessons
 router.get('/', async (req, res) => {
-    const lessons = await Lesson.find({ price: { $gte: 350 } }) // []
+    const lessons = await Lesson.find()
 
     res.render('lessons', {
         title: 'All lessons',
@@ -44,7 +44,7 @@ router.get('/:id', async (req, res) => {
 
 // Delete single lesson with id
 router.get('/delete/:id', authMiddleware, async (req, res) => {
-    await Lesson.removeById(req.params.id)
+    await Lesson.findByIdAndRemove(req.params.id)
     res.redirect('/lessons')
 })
 

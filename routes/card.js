@@ -1,7 +1,8 @@
 const { Router } = require('express')
 const router = Router()
+const User = require('../model/user')
 
-const Card = require('../model/card')
+const Card = require('../model/user')
 
 // Get home page
 router.get('/', async (req, res) => {
@@ -15,7 +16,7 @@ router.get('/', async (req, res) => {
 })
 
 router.post('/add', async (req, res) => {
-    const lessons = await Card.add(req.body.id)
+    const lessons = await User.buyLesson(req.body.id)
 
     if (!lessons) {
         return res.status(500).send('Server error')
