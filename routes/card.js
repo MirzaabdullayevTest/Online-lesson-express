@@ -2,26 +2,34 @@ const { Router } = require('express')
 const router = Router()
 const User = require('../model/user')
 
-const Card = require('../model/user')
+function totalPrice(items) {
+    const sum = 0
+    return items.reduce((prev, current) => +prev + +current.lessonId.price * current.count, sum)
+}
 
 // Get home page
 router.get('/', async (req, res) => {
-    const { price, items } = await Card.fetch()
+    const userCart = await User.findById('62e7d5232e76ea6078209083')
+        .populate('cart.items.lessonId')
+
     res.render('card', {
         title: 'Shopping card',
         isCard: true,
-        total: price,
-        items
+        total: totalPrice(userCart.cart.items),
+        items: userCart.cart.items
     })
 })
 
 router.post('/add', async (req, res) => {
-    const lessons = await User.buyLesson(req.body.id)
+    const user = await User.findOne()  // [] // {John}
 
-    if (!lessons) {
-        return res.status(500).send('Server error')
+    try {
+        await user.buyLesson(req.body.id)
+    } catch (error) {
+        res.status(400).send(error)
     }
 
+    // res.send('Lesson Bought')
     res.redirect('/card')
 })
 

@@ -14,7 +14,7 @@ const userSchema = new Schema({
             {
                 lessonId: {
                     type: Schema.Types.ObjectId,
-                    // required: true
+                    ref: 'lesson'
                 },
                 count: {
                     type: Number,
@@ -26,9 +26,12 @@ const userSchema = new Schema({
     }
 })
 
-userSchema.statics.buyLesson = async function (id) {
-    const items = [...userSchema.obj.cart.items] // []
+
+userSchema.methods.buyLesson = async function (id) {
+    const items = [...this.cart.items] // [{java}, {js}]
     const idx = items.findIndex(lesson => lesson.lessonId.toString() === id.toString()) // 0 1 2 23 // -1
+
+    console.log(this);
 
     if (idx >= 0) {
         // demak dars korzinada bor // count 1 ga oshiramiz
@@ -41,13 +44,11 @@ userSchema.statics.buyLesson = async function (id) {
         })
     }
 
-    userSchema.obj.cart = {
+    this.cart = {
         items
     }
-    
-    await userSchema.save()
 
-    return userSchema.obj.cart.items
+    return await this.save()
 }
 
 module.exports = model('user', userSchema)

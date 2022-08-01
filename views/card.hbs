@@ -13,13 +13,13 @@
             {{#each items}}
             <tr>
                 <td>
-                    {{name}}
+                    {{lessonId.name}}
                 </td>
                 <td class="count">
                     {{count}}
                 </td>
                 <td class="price">
-                    {{price}}
+                    {{lessonId.price}}
                 </td>
                 <td>
                     <span class="countPrice">0</span>
@@ -31,7 +31,7 @@
             </tr>
             {{/each}}
         </tbody>
-       
+
     </table>
     <p class="total">{{total}}</p>
     {{else}}
